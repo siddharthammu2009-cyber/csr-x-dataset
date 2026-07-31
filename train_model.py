@@ -15,7 +15,7 @@ def load_dataset(filepath):
     """
     if not os.path.exists(filepath):
         # Fallback check if executing from root directory
-        filepath = os.path.join("model_building", "data", "stars_dataset.csv")
+        filepath = os.path.join("stars_dataset.csv")
     
     print(f"Loading dataset from: {filepath}")
     df = pd.read_csv(filepath)
@@ -36,12 +36,11 @@ def prepare_features_and_target(df):
     Target to extract:
       - 'star_type': Star classification label (Cepheid, RR Lyrae, Mira, Eclipsing Binary)
     """
-    # TODO: Step 1.1 - Define a list of feature column names called `feature_cols`
-    # TODO: Step 1.2 - Extract feature matrix X from df using feature_cols
-    # TODO: Step 1.3 - Extract target vector y from df['star_type']
-    # TODO: Step 1.4 - Return X, y
+    feature_cols = ['I_magnitude','period_days','I_band_amplitude','V_minus_I_color']
+    X = df[feature_cols]
+    y = df['star_type']
+    return X,y
     
-    raise NotImplementedError("Task 1 (prepare_features_and_target) is not implemented yet!")
 
 
 def split_data(X, y):
@@ -50,10 +49,9 @@ def split_data(X, y):
     
     Use scikit-learn's `train_test_split` function.
     """
-    # TODO: Step 2.1 - Call train_test_split(X, y, test_size=0.2, random_state=42)
-    # TODO: Step 2.2 - Return X_train, X_test, y_train, y_test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
     
-    raise NotImplementedError("Task 2 (split_data) is not implemented yet!")
 
 
 def train_and_evaluate_model(model, model_name, X_train, X_test, y_train, y_test):
@@ -65,26 +63,23 @@ def train_and_evaluate_model(model, model_name, X_train, X_test, y_train, y_test
     print(f"  Training Model: {model_name}")
     print("=" * 60)
     
-    # TODO: Step 3.1 - Fit the model using X_train and y_train
-    # model.fit(...)
+    model.fit(X_train, y_train)
     
-    # TODO: Step 3.2 - Make predictions on X_test using model.predict(...)
-    # y_pred = model.predict(...)
+    y_pred = model.predict(X_test)
     
-    # TODO: Step 3.3 - Compute accuracy score using accuracy_score(y_test, y_pred)
-    # accuracy = accuracy_score(...)
-    # print(f"Test Accuracy: {accuracy * 100:.2f}%")
+    acc = accuracy_score(y_test, y_pred)
+    print(f"Test Accuracy: {acc * 100:.2f}%\n")
+
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred))
     
-    # TODO: Step 3.4 - Print full classification report using classification_report(y_test, y_pred)
-    # print("\nClassification Report:")
-    # print(classification_report(...))
     
-    # TODO: Step 3.5 - Compute 5-fold cross-validation on X_train and y_train using cross_val_score
-    # cv_scores = cross_val_score(model, X_train, y_train, cv=5)
-    # print(f"5-Fold Cross-Validation Scores: {cv_scores}")
-    # print(f"Mean CV Accuracy: {cv_scores.mean() * 100:.2f}% (+/- {cv_scores.std() * 100:.2f}%)")
-    
-    raise NotImplementedError("Task 3 (train_and_evaluate_model) is not implemented yet!")
+
+    cv_scores = cross_val_score(model, X_train, y_train, cv=5)
+    print(f"5-Fold Cross-Validation Scores: {cv_scores}")
+    print(f"Mean CV Accuracy: {cv_scores.mean() * 100:.2f}% (+/- {cv_scores.std() * 100:.2f}%)")
+    print("=" * 60)
+    return model, acc
 
 
 def main():
